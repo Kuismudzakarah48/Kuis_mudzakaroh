@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kuis Mudzakaroh Aqidah 02</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+    margin: 0; padding: 16px; color: #222; line-height: 1.6; min-height: 100vh;
+  }
+  .container {
+    max-width: 640px; margin: 0 auto; background: #fff; padding: 24px;
+    border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    display: flex; flex-direction: column; min-height: 80vh;
+  }
+  h1 { font-size: 1.25rem; color: #1a5d1a; margin: 0 0 4px; }
+  .subtitle { color: #666; font-size: 0.85rem; margin-bottom: 20px; }
+  .content-area { flex: 1; }
+  .question-box { animation: fadeIn 0.4s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .q-number { display: inline-block; background: #1a5d1a; color: #fff; font-size: 0.75rem; font-weight: bold; padding: 3px 10px; border-radius: 12px; margin-bottom: 8px; }
+  .q-text { font-weight: 600; font-size: 1rem; margin: 0 0 16px; }
+  .option {
+    display: block; padding: 12px 14px; margin: 8px 0; border: 2px solid #e0e0e0;
+    border-radius: 10px; cursor: pointer; transition: all 0.2s; background: #fafafa; font-size: 0.95rem;
+  }
+  .option:hover { border-color: #4caf50; background: #f0f8f0; }
+  .option.selected { border-color: #1a5d1a; background: #e8f5e9; }
+  .option.correct { border-color: #1a5d1a; background: #d4edda; }
+  .option.wrong { border-color: #c0392b; background: #f8d7da; }
+  .option.disabled { pointer-events: none; }
+  .option input { display: none; }
+  .feedback { margin-top: 16px; padding: 14px; border-radius: 10px; font-size: 0.9rem; display: none; animation: fadeIn 0.3s ease; }
+  .feedback.show { display: block; }
+  .feedback.correct { background: #d4edda; border-left: 4px solid #1a5d1a; color: #155724; }
+  .feedback.wrong { background: #f8d7da; border-left: 4px solid #c0392b; color: #721c24; }
+  .feedback strong { display: block; margin-bottom: 6px; }
+  button {
+    background: #1a5d1a; color: #fff; border: none; padding: 14px 24px; font-size: 1rem;
+    border-radius: 10px; cursor: pointer; width: 100%; margin-top: 16px; font-weight: 600; transition: background 0.2s;
+  }
+  button:hover { background: #144a14; }
+  button:disabled { background: #bdbdbd; cursor: not-allowed; }
+  .btn-secondary { background: #f0f0f0; color: #333; }
+  .btn-secondary:hover { background: #e0e0e0; }
+  .result { text-align: center; animation: fadeIn 0.5s ease; }
+  .result h2 { color: #1a5d1a; margin: 0 0 8px; }
+  .result .score-big { font-size: 3rem; font-weight: bold; color: #1a5d1a; margin: 16px 0; }
+  .result .score-big span { font-size: 1.5rem; color: #666; }
+  .result .message { padding: 16px; border-radius: 10px; margin: 16px 0; font-weight: 600; }
+  .result .message.pass { background: #d4edda; color: #155724; }
+  .result .message.fail { background: #fff3cd; color: #856404; }
+  .result .detail { text-align: left; font-size: 0.85rem; color: #555; background: #fafafa; padding: 12px; border-radius: 8px; margin-top: 12px; }
+  .result .detail div { padding: 4px 0; border-bottom: 1px dashed #ddd; }
+  .result .detail div:last-child { border-bottom: none; }
+  .name-input {
+    width: 100%; padding: 12px 14px; border: 2px solid #e0e0e0; border-radius: 10px;
+    font-size: 1rem; margin-bottom: 12px; font-family: inherit;
+  }
+  .name-input:focus { outline: none; border-color: #1a5d1a; }
+  .name-warning { font-size: 0.85rem; color: #c0392b; margin-bottom: 8px; display: none; }
+  .name-warning.show { display: block; }
+
+  /* Progress bar di bawah */
+  .progress-wrapper {
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid #eee;
+  }
+  .progress-bar { height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, #1a5d1a, #4caf50); width: 0%; transition: width 0.4s ease; }
+  .progress-text { font-size: 0.8rem; color: #666; text-align: center; margin-top: 6px; }
+
+  /* Header khusus untuk PDF */
+  .print-header {
+    display: none;
+    text-align: center;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #1a5d1a;
+  }
+  .print-header h2 { color: #1a5d1a; margin: 0 0 4px; font-size: 1.2rem; }
+  .print-header p { margin: 0; font-size: 0.85rem; color: #666; }
+
+  /* Aturan cetak PDF */
+  @media print {
+    body { background: #fff !important; padding: 0; }
+    .container { box-shadow: none; border-radius: 0; max-width: 100%; padding: 20px; min-height: auto; }
+    h1, .subtitle { display: none !important; }
+    button { display: none !important; }
+    .progress-wrapper { display: none !important; }
+    #nameArea, #quizArea { display: none !important; }
+    #resultArea { display: block !important; }
+    .print-header { display: block !important; }
+    .result .score-big { color: #1a5d1a !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .result .message.pass { background: #d4edda !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .result .message.fail { background: #fff3cd !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .result .detail { page-break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="content-area">
+    <h1>Kuis Mabadi Asharah</h1>
+    <p class="subtitle">10 Prinsip Dasar Ilmu Akidah</p>
+
+    <div id="nameArea">
+      <label style="font-weight:600;font-size:0.9rem;display:block;margin-bottom:6px;">Nama Anda:</label>
+      <input type="text" id="userName" class="name-input" placeholder="Ketik nama lengkap Anda">
+      <div class="name-warning" id="nameWarning">⚠️ Nama wajib diisi sebelum memulai kuis.</div>
+      <button id="startBtn" onclick="startQuiz()">Mulai Kuis</button>
+    </div>
+
+    <div id="quizArea" style="display:none;">
+      <div id="questionContainer"></div>
+    </div>
+
+    <div id="resultArea" style="display:none;"></div>
+  </div>
+
+  <div class="progress-wrapper" id="progressWrapper" style="display:none;">
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-text" id="progressText">Soal 1 dari 12</div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// KONFIGURASI — GANTI BAGIAN INI
+// ============================================================
+const WEB3FORMS_KEY = '593df48c-cd65-4c6d-8af0-eef80745a48c'; // dari web3forms.com
+const EMAIL_ANDA    = 'ataziq39@gmail.com';    // email Anda
+// ============================================================
+
+const questions = [
+  { q: "Secara bahasa, kata \"Aqidah\" berasal dari akar kata yang memiliki arti dasar sebagai...",
+    options: ["Pengakuan lisan", "Ikatan yang kuat", "Penyerahan diri secara total", "Pemikiran logika yang mendalam"],
+    answer: 1,
+    feedback: "Secara bahasa, aqidah berasal dari kata yang berarti ikatan yang kuat. Adapun secara istilah syar'i, definisi akidah merujuk pada pokok-pokok rukun iman." },
+
+  { q: "Mengapa keyakinan penganut agama lain (seperti penganut Trinitas) dapat disebut sebagai \"aqidah\" secara bahasa, namun bukan merupakan \"aqidah yang benar\"?",
+    options: [
+      "Karena keyakinan tersebut diikat kuat dalam hati penganutnya, namun tidak sesuai dengan kenyataan dan dalil wahyu.",
+      "Karena secara istilah, kata \"aqidah\" hanya boleh digunakan untuk ajaran Islam.",
+      "Karena ajaran tersebut sama sekali tidak memiliki pengikut di dunia.",
+      "Karena mereka tidak mempelajari sepuluh prinsip dasar ilmu agama."
+    ],
+    answer: 0,
+    feedback: "Keyakinan non-Islam tetap disebut akidah secara bahasa karena diikat kuat dalam hati pemeluknya, tetapi bukan tergolong akidah yang benar (haq) karena tidak sesuai dengan kenyataan dan wahyu." },
+
+  { q: "Apakah perbedaan utama antara keutamaan ilmu (al-fadhl) dan buah ilmu (ats-tsamarah) dalam proses menuntut ilmu aqidah?",
+    options: [
+      "Keutamaan ilmu hanya diperoleh di akhirat, sedangkan buah ilmu dinikmati di dunia.",
+      "Keutamaan ilmu dirasakan sejak proses belajar berjalan, sedangkan buah ilmu baru dipetik setelah ilmu dijalani dan menghasilkan amalan.",
+      "Keutamaan ilmu hukumnya wajib bagi ulama, sedangkan buah ilmu khusus untuk masyarakat awam.",
+      "Keutamaan ilmu merupakan nama kitab, sedangkan buah ilmu adalah metode menghafal teks ringkas."
+    ],
+    answer: 1,
+    feedback: "Keutamaan ilmu (fadhlu) sudah didapatkan seseorang bahkan saat masih dalam proses menuntut ilmu. Sementara buah ilmu (tsamarah) adalah hasil nyata yang baru dapat dipetik dan dinikmati setelah ilmu tersebut tumbuh dan diterapkan dalam amalan." },
+
+  { q: "Dalam klasifikasi ilmu agama (An-Nisbah), ilmu akidah dikategorikan sebagai...",
+    options: [
+      "Ilmu alat untuk memahami kaidah bahasa Arab.",
+      "Cabang dari ilmu sains dan fenomena alam.",
+      "Bagian paling penting dari ilmu syariah serta menjadi landasan utama (asasuddin).",
+      "Ilmu cabang (furu') yang hukum memelajarinya bersifat sunnah."
+    ],
+    answer: 2,
+    feedback: "Dalam An-Nisbah (penisbatan ilmu), akidah tergolong dalam ilmu syariah yang paling penting (min ahammil syariah) dan berkedudukan sebagai asasuddin (landasan/pondasi agama)." },
+
+  { q: "Mengapa Syaikh Ṣhāliḥ al-‘Uṣhaimī menjelaskan bahwa tauhid merupakan kewajiban pertama, dan apa kritik beliau terhadap penggunaan istilah “taklif” untuk menyebut tuntutan syariat kepada seorang hamba?",
+    options: [
+      "Karena tauhid merupakan kewajiban pertama yang didahulukan sebelum kewajiban lainnya. Adapun istilah taklif merupakan istilah yang digunakan para ulama untuk menyebut tuntutan perintah dan larangan, tetapi Syaikh al-‘Uṣhaimī menjelaskan bahwa istilah Ubudiyyah lebih sesuai dengan bahasa syariat dan hakikat hubungan manusia dengan Allah, karena perintah dan larangan Allah merupakan konsekuensi penghambaan, bukan sekadar beban atau belenggu.",
+      "Karena seluruh manusia diciptakan hanya untuk menghafal matan, dan istilah mukallaf berarti orang yang bebas dari dosa.",
+      "Karena dakwah para nabi diawali dengan pembentukan khilafah, sedangkan istilah mukallaf bermakna orang yang berilmu.",
+      "Karena akidah adalah ilmu fardhu kifayah, dan mukallaf berarti orang yang sudah lanjut usia."
+    ],
+    answer: 0,
+    feedback: "Tauhid adalah kewajiban pertama. Syaikh al-‘Uṣhaimī mengingatkan bahwa istilah taklif menonjolkan makna pembebanan, sedangkan istilah ‘ubudiyah lebih sesuai untuk menggambarkan hubungan hamba dengan perintah dan larangan Allah." },
+
+  { q: "Siapakah pencetus atau peletak utama (Al-Wadhi') dari ajaran ilmu akidah?",
+    options: [
+      "Para ulama Mazhab Empat yang menyusun kitab-kitab ringkasan.",
+      "Allah Ta'ala yang menurunkannya melalui Malaikat Jibril kepada Nabi Muhammad ﷺ.",
+      "Para sahabat Nabi melalui hasil kesepakatan ijmak di Madinah.",
+      "Para ahli kalam yang merumuskan kaidah logika filsafat."
+    ],
+    answer: 1,
+    feedback: "Peletak (Al-Wadhi') utama ilmu akidah adalah Allah Ta'ala yang menurunkannya via Malaikat Jibril kepada Nabi Muhammad ﷺ untuk disampaikan kepada manusia, yang kemudian dirincikan dan disusun kurikulumnya oleh para ulama agar mudah dipahami." },
+
+  { q: "Manakah di antara kelompok nama berikut yang semuanya merupakan penamaan yang terpuji/baik bagi ilmu aqidah?",
+    options: [
+      "Al-Iman, As-Sunnah, At-Tauhid, dan Fiqhul Akbar.",
+      "Filsafat, Ilmu Kalam, dan As-Sunnah.",
+      "Ilmu Logika, Ushuluddin, dan Filsafat.",
+      "Asy-Syariah, Fiqhul Akbar, dan Ilmu Kalam."
+    ],
+    answer: 0,
+    feedback: "Penamaan terpuji bagi ilmu aqidah meliputi Al-Iman, As-Sunnah, At-Tauhid, Ushuluddin, Asy-Syariah, dan Fiqhul Akbar. Adapun Filsafat dan Ilmu Kalam merupakan penamaan/metode yang buruk karena mendahulukan akal di atas dalil." },
+
+  { q: "Sebagian kelompok menolak sifat-sifat Allah (seperti Allah turun atau memiliki tangan) karena takut menyerupakan-Nya dengan makhluk. Bagaimana kaidah bahasa yang tepat untuk membantah syubhat ini?",
+    options: [
+      "Nama yang sama pasti memiliki bentuk dan hakikat yang persis sama.",
+      "Kesamaan nama tidak menunjukkan kesamaan hakikat ketika disandarkan pada subjek yang berbeda (seperti istilah \"tangan manusia\" dan \"buah tangan\").",
+      "Semua sifat Allah wajib diubah maknanya menjadi kekuasaan atau nikmat.",
+      "Akal manusia memiliki hak penuh untuk mengedit lafaz dalam ayat Al-Qur'an."
+    ],
+    answer: 1,
+    feedback: "Kaidah menyatakan bahwa kesamaan nama pada suatu kata tidak berarti kesamaan hakikat ketika disandarkan kepada subjek yang berbeda. Contohnya dalam bahasa kita, kata \"tangan\" pada manusia berbeda total makna dan hakikatnya dengan \"buah tangan\" atau \"panjang tangan\"." },
+
+  { q: "Mengapa wahyu (Al-Qur'an dan As-Sunnah) menjadi SATU-SATUNYA sumber pengambilan (Al-Istimdad) dalam ilmu akidah untuk mengetahui hal gaib tentang Allah?",
+    options: [
+      "Karena manusia dapat melihat Allah secara langsung di alam dunia.",
+      "Karena terdapat banyak makhluk di bumi yang memiliki kemiripan dengan Allah.",
+      "Karena dari 3 cara memperoleh ilmu (melihat langsung, melihat kemiripannya, atau mendengar berita dari sumber jujur), hanya cara ketiga yang memungkinkan untuk perkara gaib.",
+      "Karena akal manusia mampu memprediksi hakikat alam gaib secara mandiri."
+    ],
+    answer: 2,
+    feedback: "Pengetahuan dapat diperoleh melalui 3 cara: melihat langsung, melihat kemiripannya, atau mendengar kabar dari sumber terpercaya. Karena Allah tidak dapat dilihat di dunia dan tidak ada yang serupa dengan-Nya (Laisa kamitslihi syai'un), maka wahyu adalah satu-satunya jalan yang sah." },
+
+  { q: "Berdasarkan urutan larangan dalam QS. Al-A‘raf ayat 33 dan penjelasan Ibn al-Qayyim, dosa apa yang disebut sebagai tingkatan paling berat dalam rangkaian tersebut?",
+    options: [
+      "Melanggar hak dan menzalimi sesama manusia (al-baghyu).",
+      "Berkata atau menetapkan sesuatu tentang Allah dan agama tanpa landasan ilmu.",
+      "Melakukan perbuatan keji yang tampak maupun tersembunyi (fawahisy).",
+      "Meninggalkan amalan-amalan sunnah."
+    ],
+    answer: 1,
+    feedback: "Ibn al-Qayyim menjelaskan bahwa QS. Al-A‘raf: 33 menyebut larangan secara bertahap: al-fawāḥish, al-itsm dan al-baghy, syirik, kemudian al-qawl ‘alā Allāh bilā ‘ilm. Karena itu, berkata atas nama Allah tanpa ilmu disebut sebagai yang paling berat dalam rangkaian ayat tersebut. Namun, ini tidak berarti setiap bentuknya secara mutlak lebih berat daripada setiap bentuk syirik" },
+
+  { q: "Bagaimana rincian hukum mempelajari ilmu akidah bagi seorang muslim?",
+    options: [
+      "Hukumnya Fardhu 'Ain secara menyeluruh sampai ke detail perbedaan pendapat para ulama.",
+      "Hukumnya Fardhu 'Ain untuk kadar minimal yang mengesahkan iman dan ibadah, sedangkan pendalamannya bersifat Fardhu Kifayah.",
+      "Hukumnya Sunnah Muakkadah bagi awam dan Fardhu 'Ain khusus untuk para rasul.",
+      "Hukumnya Fardhu Kifayah bagi seluruh masyarakat tanpa ada bagian yang Fardhu 'Ain."
+    ],
+    answer: 1,
+    feedback: "Mempelajari akidah hukumnya Fardhu 'Ain pada kadar minimal yang membuat keimanan dan ibadah seseorang menjadi sah (seperti mengenal Allah dan Rasul-Nya). Adapun mempelajari secara mendalam atau mengajarkannya hingga tuntas hukumnya Fardhu Kifayah." },
+
+  { q: "Manakah di antara topik berikut yang tergolong sebagai Masail (permasalahan/pembahasan rinci) dalam ilmu akidah?",
+    options: [
+      "Tata cara pembagian harta waris (faraid) dan hukum piutang.",
+      "Hukum makhraj dan tajwid dalam membaca Al-Qur'an.",
+      "Tauhid (Rububiyah, Uluhiyah, Asma wa Sifat), tugas malaikat, hari akhir (mizan/sirath), dan qadha-qadar.",
+      "Rincian rukun dan syarat sah akad jual beli dalam muamalah."
+    ],
+    answer: 2,
+    feedback: "Masail (topik pembahasan) ilmu akidah mencakup Tauhid Rububiyah, Uluhiyah, Asma wa Sifat, tugas malaikat, mukjizat rasul, peristiwa hari akhir (sirath, mizan, surga, neraka), serta qadha dan qadar." }
+];
+
+let currentIndex = 0;
+let score = 0;
+let userAnswers = [];
+let selectedOption = null;
+let startTime = null;
+let userName = '';
+
+const userNameInput = document.getElementById('userName');
+const nameArea = document.getElementById('nameArea');
+const quizArea = document.getElementById('quizArea');
+const questionContainer = document.getElementById('questionContainer');
+const resultArea = document.getElementById('resultArea');
+const progressWrapper = document.getElementById('progressWrapper');
+const progressFill = document.getElementById('progressFill');
+const progressText = document.getElementById('progressText');
+const nameWarning = document.getElementById('nameWarning');
+
+function startQuiz() {
+  const name = userNameInput.value.trim();
+  if (name.length < 2) {
+    nameWarning.classList.add('show');
+    return;
+  }
+  userName = name;
+  startTime = new Date();
+  nameArea.style.display = 'none';
+  quizArea.style.display = 'block';
+  progressWrapper.style.display = 'block';
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const item = questions[currentIndex];
+  selectedOption = null;
+  progressText.textContent = `Soal ${currentIndex + 1} dari ${questions.length}`;
+  progressFill.style.width = `${(currentIndex / questions.length) * 100}%`;
+
+  let html = `<div class="question-box">
+    <span class="q-number">Soal ${currentIndex + 1}</span>
+    <p class="q-text">${item.q}</p>
+    <div id="optionsContainer">`;
+  item.options.forEach((opt, i) => {
+    html += `<label class="option" data-index="${i}"><input type="radio" name="opt" value="${i}"> ${opt}</label>`;
+  });
+  html += `</div>
+    <div class="feedback" id="feedbackBox"></div>
+    <button id="actionBtn" disabled>Pilih jawaban dulu</button>
+  </div>`;
+
+  questionContainer.innerHTML = html;
+  document.querySelectorAll('.option').forEach(el => {
+    el.addEventListener('click', () => selectOption(el));
+  });
+  document.getElementById('actionBtn').addEventListener('click', handleAction);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function selectOption(el) {
+  if (el.classList.contains('disabled')) return;
+  document.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedOption = parseInt(el.dataset.index);
+  const btn = document.getElementById('actionBtn');
+  btn.disabled = false;
+  btn.textContent = 'Kunci Jawaban';
+}
+
+function handleAction() {
+  const item = questions[currentIndex];
+  const feedbackBox = document.getElementById('feedbackBox');
+  const btn = document.getElementById('actionBtn');
+
+  if (!feedbackBox.classList.contains('show')) {
+    const isCorrect = selectedOption === item.answer;
+    if (isCorrect) score++;
+
+    userAnswers.push({
+      question: currentIndex + 1,
+      questionText: item.q,
+      selectedText: item.options[selectedOption],
+      correctText: item.options[item.answer],
+      isCorrect: isCorrect
+    });
+
+    document.querySelectorAll('.option').forEach(el => {
+      el.classList.add('disabled');
+      const idx = parseInt(el.dataset.index);
+      if (idx === item.answer) el.classList.add('correct');
+      if (idx === selectedOption && !isCorrect) el.classList.add('wrong');
+    });
+
+    feedbackBox.className = 'feedback show ' + (isCorrect ? 'correct' : 'wrong');
+    feedbackBox.innerHTML = `<strong>${isCorrect ? '✅ Benar!' : '❌ Kurang tepat.'}</strong>${item.feedback}`;
+    btn.textContent = (currentIndex === questions.length - 1) ? 'Lihat Hasil Akhir' : 'Soal Berikutnya →';
+    return;
+  }
+
+  currentIndex++;
+  if (currentIndex < questions.length) {
+    renderQuestion();
+  } else {
+    showResult();
+  }
+}
+
+// Auto-kirim ke email (TANPA notifikasi ke peserta)
+async function sendToEmail() {
+  const total = questions.length;
+  const percent = Math.round((score / total) * 100);
+  const now = new Date();
+  const durasi = startTime ? Math.round((now - startTime) / 1000) : 0;
+
+  let jawabanDetail = '';
+  userAnswers.forEach(a => {
+    jawabanDetail += `Soal ${a.question} [${a.isCorrect ? 'BENAR' : 'SALAH'}]\n`;
+    jawabanDetail += `  Pertanyaan: ${a.questionText}\n`;
+    jawabanDetail += `  Jawaban Peserta: ${a.selectedText}\n`;
+    jawabanDetail += `  Jawaban Benar: ${a.correctText}\n\n`;
+  });
+
+  try {
+    await fetch('https://api.web3forms.com/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        access_key: WEB3FORMS_KEY,
+        subject: `Hasil Kuis Mabadi Asharah — ${userName} (${score}/${total})`,
+        from_name: 'Kuis Mabadi Asharah',
+        email: EMAIL_ANDA,
+        nama: userName,
+        skor: `${score}/${total} (${percent}%)`,
+        status: percent >= 70 ? 'LULUS' : 'BELUM LULUS',
+        tanggal: now.toLocaleString('id-ID'),
+        durasi_detik: durasi,
+        rincian_jawaban: jawabanDetail
+      })
+    });
+  } catch (e) {
+    // Diamkan saja — peserta tidak perlu tahu
+    console.log('Auto-send gagal:', e);
+  }
+}
+
+function savePDF() {
+  window.print();
+}
+
+function showResult() {
+  quizArea.style.display = 'none';
+  progressWrapper.style.display = 'none';
+  resultArea.style.display = 'block';
+
+  const total = questions.length;
+  const percent = Math.round((score / total) * 100);
+  const passed = percent >= 70;
+  const now = new Date();
+
+  let detailHtml = '';
+  userAnswers.forEach(a => {
+    detailHtml += `<div>Soal ${a.question}: ${a.isCorrect ? '✅ Benar' : '❌ Salah'}</div>`;
+  });
+
+  resultArea.innerHTML = `
+    <div class="print-header">
+      <h2>Laporan Kuis Mabadi Asharah</h2>
+      <p>10 Prinsip Dasar Ilmu Akidah</p>
+    </div>
+    <div class="result">
+      <h2>Hasil Kuis</h2>
+      <p style="color:#666;font-size:0.9rem;margin:4px 0 16px;">Peserta: <strong>${userName}</strong></p>
+      <p style="color:#888;font-size:0.8rem;margin:0 0 16px;">Tanggal: ${now.toLocaleString('id-ID')}</p>
+      <div class="score-big">${score}<span> / ${total}</span></div>
+      <div class="message ${passed ? 'pass' : 'fail'}">
+        ${passed ? '🎉 Masya Allah, pemahaman Anda baik!' : '📚 Silakan pelajari kembali materinya ya.'}
+      </div>
+      <div class="detail">
+        <strong style="display:block;margin-bottom:8px;color:#1a5d1a;">Rincian Jawaban:</strong>
+        ${detailHtml}
+      </div>
+      <button class="btn-secondary" onclick="savePDF()">📄 Simpan sebagai PDF</button>
+      <button class="btn-secondary" onclick="location.reload()">🔄 Ulangi Kuis</button>
+    </div>`;
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  sendToEmail();
+}
+</script>
+</body>
+</html>

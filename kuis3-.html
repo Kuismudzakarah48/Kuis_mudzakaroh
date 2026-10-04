@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kuis Mudzakaroh Aqidah 03</title>
+<style>
+@media print {
+  body { background: #fff !important; padding: 0; }
+  .container { box-shadow: none; border-radius: 0; max-width: 100%; padding: 20px; }
+  h1, .subtitle { display: none !important; }
+  .btn-secondary, #actionBtn, button { display: none !important; }
+  .progress-wrapper { display: none !important; }
+  #nameArea, #quizArea { display: none !important; }
+  #resultArea { display: block !important; }
+  .result .score-big { color: #1a5d1a !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .result .message.pass { background: #d4edda !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .result .message.fail { background: #fff3cd !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .result .detail { page-break-inside: avoid; }
+  .print-header { display: block !important; }
+}
+
+.print-header {
+  display: none;
+  text-align: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #1a5d1a;
+}
+.print-header h2 { color: #1a5d1a; margin: 0 0 4px; font-size: 1.2rem; }
+.print-header p { margin: 0; font-size: 0.85rem; color: #666; }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+    margin: 0; padding: 16px; color: #222; line-height: 1.6; min-height: 100vh;
+  }
+  .container {
+    max-width: 640px; margin: 0 auto; background: #fff; padding: 24px;
+    border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    display: flex; flex-direction: column; min-height: 80vh;
+  }
+  h1 { font-size: 1.25rem; color: #1a5d1a; margin: 0 0 4px; }
+  .subtitle { color: #666; font-size: 0.85rem; margin-bottom: 20px; }
+  .content-area { flex: 1; }
+  .question-box { animation: fadeIn 0.4s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .q-number { display: inline-block; background: #1a5d1a; color: #fff; font-size: 0.75rem; font-weight: bold; padding: 3px 10px; border-radius: 12px; margin-bottom: 8px; }
+  .q-text { font-weight: 600; font-size: 1rem; margin: 0 0 16px; }
+  .option {
+    display: block; padding: 12px 14px; margin: 8px 0; border: 2px solid #e0e0e0;
+    border-radius: 10px; cursor: pointer; transition: all 0.2s; background: #fafafa; font-size: 0.95rem;
+  }
+  .option:hover { border-color: #4caf50; background: #f0f8f0; }
+  .option.selected { border-color: #1a5d1a; background: #e8f5e9; }
+  .option.correct { border-color: #1a5d1a; background: #d4edda; }
+  .option.wrong { border-color: #c0392b; background: #f8d7da; }
+  .option.disabled { pointer-events: none; }
+  .option input { display: none; }
+  .feedback { margin-top: 16px; padding: 14px; border-radius: 10px; font-size: 0.9rem; display: none; animation: fadeIn 0.3s ease; }
+  .feedback.show { display: block; }
+  .feedback.correct { background: #d4edda; border-left: 4px solid #1a5d1a; color: #155724; }
+  .feedback.wrong { background: #f8d7da; border-left: 4px solid #c0392b; color: #721c24; }
+  .feedback strong { display: block; margin-bottom: 6px; }
+  button {
+    background: #1a5d1a; color: #fff; border: none; padding: 14px 24px; font-size: 1rem;
+    border-radius: 10px; cursor: pointer; width: 100%; margin-top: 16px; font-weight: 600; transition: background 0.2s;
+  }
+  button:hover { background: #144a14; }
+  button:disabled { background: #bdbdbd; cursor: not-allowed; }
+  .btn-secondary { background: #f0f0f0; color: #333; }
+  .btn-secondary:hover { background: #e0e0e0; }
+  .result { text-align: center; animation: fadeIn 0.5s ease; }
+  .result h2 { color: #1a5d1a; margin: 0 0 8px; }
+  .result .score-big { font-size: 3rem; font-weight: bold; color: #1a5d1a; margin: 16px 0; }
+  .result .score-big span { font-size: 1.5rem; color: #666; }
+  .result .message { padding: 16px; border-radius: 10px; margin: 16px 0; font-weight: 600; }
+  .result .message.pass { background: #d4edda; color: #155724; }
+  .result .message.fail { background: #fff3cd; color: #856404; }
+  .result .detail { text-align: left; font-size: 0.85rem; color: #555; background: #fafafa; padding: 12px; border-radius: 8px; margin-top: 12px; }
+  .result .detail div { padding: 4px 0; border-bottom: 1px dashed #ddd; }
+  .result .detail div:last-child { border-bottom: none; }
+  .name-input {
+    width: 100%; padding: 12px 14px; border: 2px solid #e0e0e0; border-radius: 10px;
+    font-size: 1rem; margin-bottom: 12px; font-family: inherit;
+  }
+  .name-input:focus { outline: none; border-color: #1a5d1a; }
+  .name-warning { font-size: 0.85rem; color: #c0392b; margin-bottom: 8px; display: none; }
+  .name-warning.show { display: block; }
+
+  /* Progress bar di bawah */
+  .progress-wrapper {
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid #eee;
+  }
+  .progress-bar { height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, #1a5d1a, #4caf50); width: 0%; transition: width 0.4s ease; }
+  .progress-text { font-size: 0.8rem; color: #666; text-align: center; margin-top: 6px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="content-area">
+    <h1>Kuis Mudzakaroh Aqidah 03</h1>
+    <p class="subtitle">Dasar-Dasar Ilmu Akidah</p>
+
+    <div id="nameArea">
+      <label style="font-weight:600;font-size:0.9rem;display:block;margin-bottom:6px;">Nama Anda:</label>
+      <input type="text" id="userName" class="name-input" placeholder="Ketik nama lengkap Anda">
+      <div class="name-warning" id="nameWarning">⚠️ Nama wajib diisi sebelum memulai kuis.</div>
+      <button id="startBtn" onclick="startQuiz()">Mulai Kuis</button>
+    </div>
+
+    <div id="quizArea" style="display:none;">
+      <div id="questionContainer"></div>
+    </div>
+
+    <div id="resultArea" style="display:none;"></div>
+  </div>
+
+  <div class="progress-wrapper" id="progressWrapper" style="display:none;">
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-text" id="progressText">Soal 1 dari 10</div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// KONFIGURASI — GANTI BAGIAN INI
+// ============================================================
+const WEB3FORMS_KEY = '593df48c-cd65-4c6d-8af0-eef80745a48c'; // dari web3forms.com
+const EMAIL_ANDA    = 'ataziq39@gmail.com';    // email Anda
+// ============================================================
+
+const questions = [
+  { q: "Apa perbedaan penggunaan nama Allah Al-Wahid dan Al-Ahad menurut pembahasan materi?",
+    options: [
+      "Al-Wahid disebutkan berkali-kali dalam Al-Qur'an, sedangkan Al-Ahad tidak pernah muncul.",
+      "Kedua kata tersebut memiliki makna dan penggunaan tata bahasa yang sama persis dalam bahasa Arab.",
+      "Al-Wahid dapat memiliki lanjutan bilangan setelahnya, sedangkan Al-Ahad menunjukkan keesaan mutlak satu-satunya.",
+      "Al-Wahid menunjukkan keesaan mutlak tanpa ada duanya, sedangkan Al-Ahad hanya digunakan untuk makhluk."
+    ],
+    answer: 2,
+    feedback: "Nama Al-Wahid dapat memiliki lanjutan bilangan setelahnya, sedangkan Al-Ahad menunjukkan keesaan mutlak satu-satunya yang tidak ada penambahan dengannya. Selain itu, kata Al-Ahad dalam Al-Qur'an hanya disebutkan satu kali." },
+
+  { q: "Bagaimana makna shalawat jika disandarkan kepada Allah Ta'ala?",
+    options: [
+      "Pujian Allah bagi Nabi Muhammad di hadapan para malaikat.",
+      "Permohonan ampunan atas dosa-dosa hamba-Nya.",
+      "Doa dan harapan kebaikan dari hamba kepada sesama manusia.",
+      "Permohonan syafaat dari seluruh makhluk kepada Allah."
+    ],
+    answer: 0,
+    feedback: "Makna shalawat dari Allah adalah pujian Allah bagi Nabi Muhammad di hadapan para malaikat. Adapun shalawat dari malaikat bermakna permohonan ampunan kepada Allah, dan shalawat dari manusia bermakna doa." },
+
+  { q: "Mengapa Tauhid Uluhiyah menjadi inti utama dakwah para rasul dibandingkan Tauhid Rububiyah?",
+    options: [
+      "Karena mayoritas manusia sejak dahulu menolak kepercayaan bahwa Allah adalah pencipta alam semesta.",
+      "Karena Tauhid Rububiyah hanya berlaku untuk kaum penganut ateis modern.",
+      "Karena Tauhid Rububiyah tidak pernah diajarkan di dalam Al-Qur'an.",
+      "Karena Tauhid Uluhiyah berkenaan dengan mengesakan Allah dalam ibadah, hal yang paling sering dilanggar oleh manusia dan orang musyrik."
+    ],
+    answer: 3,
+    feedback: "Tauhid Rububiyah sudah diakui oleh mayoritas manusia dan kaum musyrikin dalam fitrah mereka. Adapun Tauhid Uluhiyah berkenaan dengan mengesakan Allah dalam ibadah, yaitu hal yang paling sering dilanggar sehingga menjadi fokus inti dakwah para rasul." },
+
+  { q: "Tindakan menambahkan satu huruf pada lafaz istawa sehingga menjadi istawla merupakan bentuk penyimpangan sifat Allah yang disebut...",
+    options: ["Takyif", "Tahrif", "Tasybih", "Tawasul"],
+    answer: 1,
+    feedback: "Tahrif adalah penyimpangan dengan cara mengubah lafaz atau mengubah makna sifat Allah dari makna bahasa Arab yang tepat. Kata istawa yang ditambah huruf 'lam' menjadi istaula mengubah maknanya menjadi \"menguasai\", yang mana makna tersebut tidak cocok bagi Allah." },
+
+  { q: "Mempertanyakan atau berusaha mendeskripsikan secara detail mengenai \"bagaimana\" bentuk serta tata cara sifat Allah tergolong ke dalam larangan...",
+    options: ["Takyif", "Takwil", "Tahrif", "Tathoyyur"],
+    answer: 0,
+    feedback: "Takyif adalah tindakan membagaimanakan atau mendeskripsikan secara detail mengenai hakikat bentuk dan tata cara sifat-sifat Allah. Umat Islam diperintahkan mengimani sifat Allah tanpa melakukan takyif." },
+
+  { q: "Perbuatan hati seperti rasa takut (khauf), tawakal, dan khusyuk tergolong ke dalam jenis ibadah...",
+    options: ["Ibadah Badaniah", "Ibadah Qauliyah/Lisan", "Ibadah Maliah", "Ibadah Hati (Qalbiyah)"],
+    answer: 3,
+    feedback: "Ibadah secara umum dibagi menjadi empat, yaitu ibadah badan, lisan, harta, serta ibadah hati seperti tawakal, takut kepada Allah, dan khusyuk." },
+
+  { q: "Bentuk tawasul manakah di bawah ini yang diperbolehkan dalam agama?",
+    options: [
+      "Bertawasul dengan keagungan dan kedudukan orang-orang saleh yang telah meninggal dunia.",
+      "Meminta doa kebaikan kepada seorang muslim saleh yang masih hidup.",
+      "Bertawasul dengan amal saleh milik orang lain yang tidak ada hubungannya dengan kita.",
+      "Bertawasul menggunakan benda-benda keramat tanpa ada dalil syar'i."
+    ],
+    answer: 1,
+    feedback: "Tawasul yang disyariatkan terdiri dari tiga bentuk utama, yaitu bertawasul dengan nama dan sifat Allah, dengan amal saleh diri sendiri, serta meminta doa kepada orang saleh yang masih hidup." },
+
+  { q: "Perbuatan meminta, berdoa, dan menggantungkan harapan secara langsung kepada penghuni kuburan yang telah meninggal tergolong ke dalam...",
+    options: [
+      "Tawasul yang dianjurkan (mustahab)",
+      "Bid'ah tawasul yang ringan",
+      "Perbuatan syirik",
+      "Ibadah maliah"
+    ],
+    answer: 2,
+    feedback: "Tawasul dengan perantara yang tidak ada dalilnya tergolong bid'ah, sedangkan tindakan meminta dan berdoa langsung kepada penghuni kubur sudah termasuk ke dalam perbuatan syirik." },
+
+  { q: "Seseorang yang mengklaim dapat meramal dan mengetahui kejadian masa depan atau hal-hal gaib tergolong melakukan pelanggaran akidah yang disebut...",
+    options: ["Kahanah (Kedukunan)", "Tathoyyur", "Tasybih", "Tahrif"],
+    answer: 0,
+    feedback: "Kahanah (kedukunan) adalah tindakan mengaku mengetahui hal-hal gaib atau masa depan. Perbuatan ini merupakan salah satu dari pokok kesyirikan. Adapun tathoyyur adalah menggantungkan nasib sial atau keberuntungan pada tanda-tanda alam." },
+
+  { q: "Kapan suatu benda atau pengobatan boleh diyakini dan digunakan oleh seorang muslim sebagai sebab kesembuhan?",
+    options: [
+      "Cukup jika penjualnya mengklaim produknya sakti tanpa bukti ilmiah maupun dalil.",
+      "Jika benda tersebut dihiasi dengan jimat dan tulisan rahasia.",
+      "Apabila benda tersebut diyakini dapat memberi manfaat secara mandiri tanpa izin Allah.",
+      "Apabila memiliki landasan dalil syar'i atau telah terbukti melalui penelitian ilmiah."
+    ],
+    answer: 3,
+    feedback: "Penetapan sesuatu sebagai sebab harus memiliki landasan dalil syar'i atau terbukti melalui penelitian ilmiah. Jika tidak memiliki salah satu dari keduanya, maka tidak boleh diyakini sebagai sebab kesembuhan." }
+];
+
+let currentIndex = 0;
+let score = 0;
+let userAnswers = [];
+let selectedOption = null;
+let startTime = null;
+let userName = '';
+
+const userNameInput = document.getElementById('userName');
+const nameArea = document.getElementById('nameArea');
+const quizArea = document.getElementById('quizArea');
+const questionContainer = document.getElementById('questionContainer');
+const resultArea = document.getElementById('resultArea');
+const progressWrapper = document.getElementById('progressWrapper');
+const progressFill = document.getElementById('progressFill');
+const progressText = document.getElementById('progressText');
+const nameWarning = document.getElementById('nameWarning');
+
+function startQuiz() {
+  const name = userNameInput.value.trim();
+  if (name.length < 2) {
+    nameWarning.classList.add('show');
+    return;
+  }
+  userName = name;
+  startTime = new Date();
+  nameArea.style.display = 'none';
+  quizArea.style.display = 'block';
+  progressWrapper.style.display = 'block';
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const item = questions[currentIndex];
+  selectedOption = null;
+  progressText.textContent = `Soal ${currentIndex + 1} dari ${questions.length}`;
+  progressFill.style.width = `${(currentIndex / questions.length) * 100}%`;
+
+  let html = `<div class="question-box">
+    <span class="q-number">Soal ${currentIndex + 1}</span>
+    <p class="q-text">${item.q}</p>
+    <div id="optionsContainer">`;
+  item.options.forEach((opt, i) => {
+    html += `<label class="option" data-index="${i}"><input type="radio" name="opt" value="${i}"> ${opt}</label>`;
+  });
+  html += `</div>
+    <div class="feedback" id="feedbackBox"></div>
+    <button id="actionBtn" disabled>Pilih jawaban dulu</button>
+  </div>`;
+
+  questionContainer.innerHTML = html;
+  document.querySelectorAll('.option').forEach(el => {
+    el.addEventListener('click', () => selectOption(el));
+  });
+  document.getElementById('actionBtn').addEventListener('click', handleAction);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function selectOption(el) {
+  if (el.classList.contains('disabled')) return;
+  document.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedOption = parseInt(el.dataset.index);
+  const btn = document.getElementById('actionBtn');
+  btn.disabled = false;
+  btn.textContent = 'Kunci Jawaban';
+}
+
+function handleAction() {
+  const item = questions[currentIndex];
+  const feedbackBox = document.getElementById('feedbackBox');
+  const btn = document.getElementById('actionBtn');
+
+  if (!feedbackBox.classList.contains('show')) {
+    const isCorrect = selectedOption === item.answer;
+    if (isCorrect) score++;
+
+    userAnswers.push({
+      question: currentIndex + 1,
+      questionText: item.q,
+      selectedText: item.options[selectedOption],
+      correctText: item.options[item.answer],
+      isCorrect: isCorrect
+    });
+
+    document.querySelectorAll('.option').forEach(el => {
+      el.classList.add('disabled');
+      const idx = parseInt(el.dataset.index);
+      if (idx === item.answer) el.classList.add('correct');
+      if (idx === selectedOption && !isCorrect) el.classList.add('wrong');
+    });
+
+    feedbackBox.className = 'feedback show ' + (isCorrect ? 'correct' : 'wrong');
+    feedbackBox.innerHTML = `<strong>${isCorrect ? '✅ Benar!' : '❌ Kurang tepat.'}</strong>${item.feedback}`;
+    btn.textContent = (currentIndex === questions.length - 1) ? 'Lihat Hasil Akhir' : 'Soal Berikutnya →';
+    return;
+  }
+
+  currentIndex++;
+  if (currentIndex < questions.length) {
+    renderQuestion();
+  } else {
+    showResult();
+  }
+}
+
+function buildCSV() {
+  const total = questions.length;
+  const percent = Math.round((score / total) * 100);
+  const now = new Date();
+  const durasi = startTime ? Math.round((now - startTime) / 1000) : 0;
+
+  let csv = '';
+  csv += 'Laporan Kuis Mudzakaroh Aqidah 03\n';
+  csv += `Nama,${userName}\n`;
+  csv += `Tanggal,${now.toLocaleString('id-ID')}\n`;
+  csv += `Skor,${score}/${total} (${percent}%)\n`;
+  csv += `Durasi,${durasi} detik\n\n`;
+  csv += 'No,Pertanyaan,Jawaban Peserta,Jawaban Benar,Status\n';
+
+  userAnswers.forEach(a => {
+    const q = `"${a.questionText.replace(/"/g, '""')}"`;
+    const sel = `"${a.selectedText.replace(/"/g, '""')}"`;
+    const cor = `"${a.correctText.replace(/"/g, '""')}"`;
+    csv += `${a.question},${q},${sel},${cor},${a.isCorrect ? 'BENAR' : 'SALAH'}\n`;
+  });
+  return csv;
+}
+
+function downloadCSV() {
+  const csv = buildCSV();
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const safeName = userName.replace(/[^a-zA-Z0-9]/g, '_');
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `hasil_kuis_${safeName}_${Date.now()}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// Auto-kirim ke email (TANPA notifikasi ke peserta)
+async function sendToEmail() {
+  const total = questions.length;
+  const percent = Math.round((score / total) * 100);
+  const now = new Date();
+  const durasi = startTime ? Math.round((now - startTime) / 1000) : 0;
+
+  let jawabanDetail = '';
+  userAnswers.forEach(a => {
+    jawabanDetail += `Soal ${a.question} [${a.isCorrect ? 'BENAR' : 'SALAH'}]\n`;
+    jawabanDetail += `  Pertanyaan: ${a.questionText}\n`;
+    jawabanDetail += `  Jawaban Peserta: ${a.selectedText}\n`;
+    jawabanDetail += `  Jawaban Benar: ${a.correctText}\n\n`;
+  });
+
+  try {
+    await fetch('https://api.web3forms.com/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        access_key: WEB3FORMS_KEY,
+        subject: `Hasil Kuis Aqidah 03 — ${userName} (${score}/${total})`,
+        from_name: 'Kuis Mudzakaroh Aqidah 03',
+        email: EMAIL_ANDA,
+        nama: userName,
+        skor: `${score}/${total} (${percent}%)`,
+        status: percent >= 70 ? 'LULUS' : 'BELUM LULUS',
+        tanggal: now.toLocaleString('id-ID'),
+        durasi_detik: durasi,
+        rincian_jawaban: jawabanDetail
+      })
+    });
+  } catch (e) {
+    // Diamkan saja — peserta tidak perlu tahu
+    console.log('Auto-send gagal:', e);
+  }
+}
+
+function showResult() {
+  quizArea.style.display = 'none';
+  progressWrapper.style.display = 'none';
+  resultArea.style.display = 'block';
+
+  const total = questions.length;
+  const percent = Math.round((score / total) * 100);
+  const passed = percent >= 70;
+  const now = new Date();
+
+  let detailHtml = '';
+  userAnswers.forEach(a => {
+    detailHtml += `<div>Soal ${a.question}: ${a.isCorrect ? '✅ Benar' : '❌ Salah'}</div>`;
+  });
+
+  resultArea.innerHTML = `
+    <div class="print-header">
+      <h2>Laporan Kuis Mudzakaroh Aqidah 03</h2>
+      <p>Dasar-Dasar Ilmu Akidah</p>
+    </div>
+    <div class="result">
+      <h2>Hasil Kuis</h2>
+      <p style="color:#666;font-size:0.9rem;margin:4px 0 16px;">Peserta: <strong>${userName}</strong></p>
+      <p style="color:#888;font-size:0.8rem;margin:0 0 16px;">Tanggal: ${now.toLocaleString('id-ID')}</p>
+      <div class="score-big">${score}<span> / ${total}</span></div>
+      <div class="message ${passed ? 'pass' : 'fail'}">
+        ${passed ? '🎉 Masya Allah, pemahaman Anda baik!' : '📚 Silakan pelajari kembali materinya ya.'}
+      </div>
+      <div class="detail">
+        <strong style="display:block;margin-bottom:8px;color:#1a5d1a;">Rincian Jawaban:</strong>
+        ${detailHtml}
+      </div>
+      <button class="btn-secondary" onclick="savePDF()">📄 Simpan sebagai PDF</button>
+      <button class="btn-secondary" onclick="location.reload()">🔄 Ulangi Kuis</button>
+    </div>`;
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  sendToEmail();
+}
+
+function savePDF() {
+  window.print();
+}
+
+</script>
+</body>
+</html>
